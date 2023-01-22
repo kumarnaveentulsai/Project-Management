@@ -2,7 +2,7 @@ import React from 'react'
 import {ArrowRight} from 'react-feather'
 import {useNavigate} from 'react-router-dom';
 import styles from './Home.module.css'
-// import homeScreen from '../../assets/homeScreen'
+import homeScreen from '../../assets/home.png'
 
 const Home = () => {
     const navigate = useNavigate();
@@ -18,8 +18,7 @@ const Home = () => {
                 <button onClick={handleButton}>Get Started <ArrowRight /> </button>
             </div>
             <div className={styles.right}>
-                {/* <img src={homeScreen} alt='home' /> */}
-                <h1>Image</h1>
+                <img src={homeScreen} alt='home' />
             </div>
         </div>
     </div>
