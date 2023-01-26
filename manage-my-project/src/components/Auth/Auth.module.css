@@ -25,11 +25,15 @@
 .smallLink {
     position: absolute;
     left: 0%;
-    top: -33px;
-    color: #000;
+    top: -38px;  
+}
+
+.smallLink a {
+    color: #fff;
     font-weight: bold;
     cursor: pointer;
-    font-size: 0.95rem;    
+    font-size: 0.95rem;
+    text-decoration: none;
 }
 
 .form .heading {
@@ -63,6 +67,10 @@
     transform: translateY(1px);
 }
 
+.form button:disabled {
+    background-color: gray !important;
+}
+
 .form .error {
     font-size: 0.875rem;
     font-weight: bold;
@@ -72,6 +80,8 @@
 }
 
 .form .bottom p {
+    width: 100%;
+    text-align: center;
     font-size: 1rem;
     font-weight: 500;
 }
