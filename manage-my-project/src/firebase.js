@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from 'firebase/auth';
-import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { doc, getDoc, getFirestore, setDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCn2BNKsgWHHeIvEiiUge-Tp-fUuSGaOFw",
@@ -25,4 +25,12 @@ const updateUserDatabase = async (user, uid) => {
   await setDoc(docRef, {...user});
 }
 
-export {app as default, analytics, auth, db};
+const getUserDatabase = async (uid) => {
+  const docRef = doc(db, "users", uid);
+  const result = await getDoc(docRef);
+
+  if(!result.exists()) return null;
+  return result.data();
+}
+
+export {app as default, analytics, auth, db, updateUserDatabase, getUserDatabase};
