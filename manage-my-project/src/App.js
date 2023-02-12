@@ -22,6 +22,7 @@ const App = () => {
     const listener = auth.onAuthStateChanged(user => {
       if(!user) {
         setIsDataLoaded(true);
+        setIsAuthenticated(false);
         return;
       }
       setIsAuthenticated(true);
@@ -46,7 +47,7 @@ const App = () => {
                 </>
               )
             }
-            <Route path='/account' element={<Account />} />
+            <Route path='/account' element={<Account userDetails={userDetails} auth={isAuthenticated} />} />
             <Route path='/*' element={<Navigate to='/' />} />
           </Routes>
         ) : (
