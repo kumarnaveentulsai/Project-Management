@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { Navigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
-import { auth, uploadImage } from '../../firebase';
+import { auth, uploadImage, updateUserDatabase } from '../../firebase';
 import InputControl from '../InputControl/InputControl';
 import {Camera, LogOut} from "react-feather";
 import styles from './Account.module.css';
@@ -14,8 +14,20 @@ const isAuthenticated = props.auth;
 const imagePicker = useRef()
 
 const [progress, setProgress] = useState(0);
-const [profileImageUrl, setProfileImageUrl] = useState("");
 const [profileImageUploadStart, setProfileImageUploadStart] = useState(false);
+const [profileImageUrl, setProfileImageUrl] = useState("");
+
+const [userProfileValues, setUserProfileVales] = useState({
+    name: userDetails.name || "",
+    designation: userDetails.designation || "",
+    github: userDetails.github || "",
+    linkedin: userDetails.linkedin || "",
+})
+
+const [showSaveDetailsButton, setShowSaveDetailsButton] = useState(false);
+const [saveButtonDisabled, setSaveButtonDisabled] = useState(false);
+
+const [errorMessage, setErrorMessage] = useState("");
 
 const handleLogout = async () => {
     await signOut(auth);
@@ -38,6 +50,7 @@ const handleImageChange = (event) => {
     },
     (url) => {
         setProfileImageUrl(url);
+        updateProfileImageToDatabase(url);
         setProfileImageUploadStart(false);
         setProgress("");
     },
@@ -48,11 +61,34 @@ const handleImageChange = (event) => {
     console.log(file);
 }
 
+const handleInputChange = (event, property)=> {
+    setShowSaveDetailsButton(true);
+    setUserProfileVales((prev) => ({
+        ...prev,
+        [property]:event.target.value
+    }))
+}
+
+const updateProfileImageToDatabase = async (url) => {
+    await updateUserDatabase({...userProfileValues, profileImageUrl:url}, userDetails.uid);
+}
+
+const saveDetailsToDatabase = async() => {
+    if(!userProfileValues.name){
+        setErrorMessage("Name Required");
+        return;
+    }
+    setSaveButtonDisabled(true);
+    await updateUserDatabase({...userProfileValues}, userDetails.uid);
+    setSaveButtonDisabled(false);
+    setShowSaveDetailsButton(false);
+}
+
   return isAuthenticated ?(
     <div className={styles.container}>
         <div className={styles.header}>
             <p className={styles.heading}>
-                Welcome <span>{userDetails.name}</span>
+                Welcome <span>{userProfileValues.name}</span>
             </p>
             <div className={styles.logout} onClick={handleLogout} >
                 <LogOut /> Logout
@@ -67,8 +103,8 @@ const handleImageChange = (event) => {
                 <div className={styles.left}>
                     <div className={styles.image}>
                         <img src={profileImageUrl} alt="Profile" />
-                        <div className={styles.camera}>
-                            <Camera onClick={handleCameraClick} />
+                        <div className={styles.camera} onClick={handleCameraClick}>
+                            <Camera />
                         </div>
                     </div>
                     {profileImageUploadStart ? (<p className={styles.progress}>
@@ -80,14 +116,27 @@ const handleImageChange = (event) => {
                 </div>
                 <div className={styles.right}>
                     <div className={styles.row}>
-                        <InputControl label="Name" placeholder="Enter your Name" />
-                        <InputControl label="Title" placeholder="e.g. MERN Developer" />
+                        <InputControl label="Name" placeholder="Enter your Name" value={userProfileValues.name} onChange={(event)=> handleInputChange(event, "name")} />
+
+                        <InputControl label="Title" placeholder="e.g. MERN Developer" value={userProfileValues.designation} onChange={(event)=> handleInputChange(event, "designation")} />
+
                     </div>
                     <div className={styles.row}>
-                        <InputControl label="GitHub" placeholder="Enter your GitHub ID" />
-                        <InputControl label="LinkedIn" placeholder="Enter your LinkedIn ID" />
+                        <InputControl label="GitHub" placeholder="Enter your GitHub ID" value={userProfileValues.github} onChange={(event)=> handleInputChange(event, "github")} />
+
+                        <InputControl label="LinkedIn" placeholder="Enter your LinkedIn ID" value={userProfileValues.linkedin} onChange={(event)=> handleInputChange(event, "linkedin")} />
                     </div>
-                    <button className={styles.saveButton}>Save Details</button>
+
+                    <div className={styles.footer}>
+                        <p className={styles.error}>{errorMessage}</p>
+                    </div>
+
+                    {
+                        showSaveDetailsButton && (
+                            <button disabled={saveButtonDisabled} className={"button"} onClick={saveDetailsToDatabase}>Save Details</button>
+                        )
+                    }
+                    
                 </div>
             </div>
         </div>

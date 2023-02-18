@@ -24,7 +24,7 @@ const updateUserDatabase = async (user, uid) => {
   if(typeof user !== "object") return;
 
   const docRef = doc(db, "users", uid);
-  await setDoc(docRef, {...user});
+  await setDoc(docRef, {...user, uid});
 }
 
 const getUserDatabase = async (uid) => {
